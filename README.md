@@ -18,7 +18,7 @@ To maintain ELIZA's "memory" (e.g., *"Earlier you mentioned..."*), you must send
 
 #### cURL
 ```bash
-curl -X POST https://your-worker-url.workers.dev/v1/chat/completions \
+curl -X POST https://elizapi.erlk0nig.workers.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "elizabot",
@@ -36,7 +36,7 @@ import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: 'not-needed',
-  baseURL: 'https://your-worker-url.workers.dev/v1',
+  baseURL: 'https://elizapi.erlk0nig.workers.dev/v1',
 });
 
 // To keep ELIZA's memory, always include previous messages
@@ -58,7 +58,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="not-needed",
-    base_url="https://your-worker-url.workers.dev/v1"
+    base_url="https://elizapi.erlk0nig.workers.dev/v1"
 )
 
 # To keep ELIZA's memory, always include previous messages
