@@ -7,23 +7,78 @@ import {
 import { describe, it, expect } from "vitest";
 import worker from "../src/index";
 
-// For now, you'll need to do something like this to get a correctly-typed
-// `Request` to pass to `worker.fetch()`.
-const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
-
-describe("Hello World worker", () => {
-	it("responds with Hello World! (unit style)", async () => {
-		const request = new IncomingRequest("http://example.com");
-		// Create an empty context to pass to `worker.fetch()`.
-		const ctx = createExecutionContext();
-		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
-		await waitOnExecutionContext(ctx);
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
+describe("ELIZA API", () => {
+	it("responds with health check on GET /", async () => {
+		const response = await SELF.fetch("https://example.com/health");
+		expect(response.status).toBe(200);
+		const data = await response.json() as any;
+		expect(data.status).toBe("ok");
+		expect(data.engine).toBe("elizabot");
 	});
 
-	it("responds with Hello World! (integration style)", async () => {
-		const response = await SELF.fetch("https://example.com");
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
+	it("handles /v1/chat/completions POST request", async () => {
+		const payload = {
+			model: "eliza",
+			messages: [
+				{ role: "user", content: "Hello, who are you?" }
+			]
+		};
+
+		const response = await SELF.fetch("https://example.com/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(payload),
+		});
+
+		expect(response.status).toBe(200);
+		const data = await response.json() as any;
+		
+		expect(data.id).toBeDefined();
+		expect(data.object).toBe("chat.completion");
+		expect(data.choices[0].message.role).toBe("assistant");
+		expect(typeof data.choices[0].message.content).toBe("string");
+		expect(data.usage).toBeDefined();
+	});
+
+	it("replays multi-turn history correctly (stateless test)", async () => {
+		const payload = {
+			model: "eliza",
+			messages: [
+				{ role: "user", content: "I am sad." },
+				{ role: "assistant", content: "I am sorry to hear you are sad." },
+				{ role: "user", content: "Can you help me?" }
+			]
+		};
+
+		const response = await SELF.fetch("https://example.com/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(payload),
+		});
+
+		expect(response.status).toBe(200);
+		const data = await response.json() as any;
+		expect(data.choices[0].message.content).toBeDefined();
+	});
+
+	it("returns 400 for empty messages", async () => {
+		const payload = {
+			model: "eliza",
+			messages: []
+		};
+
+		const response = await SELF.fetch("https://example.com/v1/chat/completions", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(payload),
+		});
+
+		expect(response.status).toBe(400);
 	});
 });
