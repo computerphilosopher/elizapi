@@ -5,10 +5,11 @@
   "author": "computerphilosopher",
   "license": "MIT",
   "scripts": {
-    "deploy": "wrangler deploy",
+    "build:front": "npm --prefix front run build",
+    "deploy": "npm run build:front && wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
-    "test": "vitest run",
+    "test": "npm run build:front && vitest run",
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {

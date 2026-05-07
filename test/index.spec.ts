@@ -8,7 +8,14 @@ import { describe, it, expect } from "vitest";
 import worker from "../src/index";
 
 describe("ELIZA API", () => {
-	it("responds with health check on GET /", async () => {
+	it("serves the frontend on GET /", async () => {
+		const response = await SELF.fetch("https://example.com/");
+		expect(response.status).toBe(200);
+		expect(response.headers.get("content-type")).toContain("text/html");
+		expect(await response.text()).toContain("<!doctype html>");
+	});
+
+	it("responds with health check on GET /health", async () => {
 		const response = await SELF.fetch("https://example.com/health");
 		expect(response.status).toBe(200);
 		const data = await response.json() as any;

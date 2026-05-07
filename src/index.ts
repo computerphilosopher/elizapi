@@ -1,7 +1,7 @@
 import ElizaBot from 'elizabot';
 
 export interface Env {
-	// If you need bindings, add them here
+	ASSETS: Fetcher;
 }
 
 interface OpenAIChatMessage {
@@ -19,14 +19,28 @@ export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
 
-		// Basic health check or greeting for GET /
-		if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/health')) {
-			return Response.json({ status: 'ok', name: 'elizapi', engine: 'elizabot' });
+		const corsHeaders = {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type',
+		};
+
+		if (request.method === 'OPTIONS') {
+			return new Response(null, { headers: corsHeaders });
+		}
+
+		// Basic health check
+		if (request.method === 'GET' && url.pathname === '/health') {
+			return Response.json({ status: 'ok', name: 'elizapi', engine: 'elizabot' }, { headers: corsHeaders });
 		}
 
 		// Only handle /v1/chat/completions
-		if (request.method !== 'POST' || url.pathname !== '/v1/chat/completions') {
-			return new Response('Not Found', { status: 404 });
+		if (url.pathname !== '/v1/chat/completions') {
+			return env.ASSETS.fetch(request);
+		}
+
+		if (request.method !== 'POST') {
+			return new Response('Not Found', { status: 404, headers: corsHeaders });
 		}
 
 		try {
@@ -34,7 +48,7 @@ export default {
 			const messages = body.messages || [];
 
 			if (messages.length === 0) {
-				return Response.json({ error: 'No messages provided' }, { status: 400 });
+				return Response.json({ error: 'No messages provided' }, { status: 400, headers: corsHeaders });
 			}
 
 			// Initialize ELIZA
