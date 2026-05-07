@@ -49,6 +49,12 @@ npm run deploy
 - **Protocol:** REST API (OpenAI API compatibility layer)
 - **Demo Page:** React + Vite frontend in `front/`
 
+### Credits
+
+ElizAPI builds on the [`elizabot`](https://www.npmjs.com/package/elizabot) npm package, a Node.js adaptation of Norbert Landsteiner's [`elizabot.js`](https://www.masswerk.at/elizabot/) JavaScript implementation.
+
+The original ELIZA program was created by Joseph Weizenbaum at MIT and described in "ELIZA - A Computer Program For the Study of Natural Language Communication Between Man and Machine" (Communications of the ACM, January 1966).
+
 ### Usage Example
 
 To maintain ELIZA's "memory" (e.g., *"Earlier you mentioned..."*), you must send the **entire conversation history** in the `messages` array for every request. Since the server is stateless, it replays previous messages to rebuild ELIZA's internal state.
