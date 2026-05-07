@@ -6,11 +6,48 @@ Bringing the world's first chatbot (1966) to the modern LLM ecosystem.
 ### Overview
 ElizAPI wraps the classic ELIZA chatbot algorithm in a modern, OpenAI-compatible `/v1/chat/completions` REST API. This allows you to drop ELIZA into any modern LLM tooling, framework (like LangChain or LlamaIndex), or UI that expects an OpenAI endpoint.
 
+### Demo Page
+ElizAPI includes a deployed retro CRT-style demo chat page:
+
+```text
+https://elizapi.erlk0nig.workers.dev/
+```
+
+Open that URL in a browser, wait for the ELIZA boot sequence to finish, then type a message in the terminal prompt and press `Enter`. The page keeps the current conversation in the browser and sends the full message history to `/v1/chat/completions` on each turn, so ELIZA can respond with basic conversational continuity.
+
+The demo page uses the same deployed OpenAI-compatible API endpoint documented below:
+
+```text
+https://elizapi.erlk0nig.workers.dev/v1/chat/completions
+```
+
+For local development with the Worker and demo page together:
+
+```bash
+npm install
+npm run build:front
+npm run dev
+```
+
+For frontend-only development:
+
+```bash
+npm --prefix front install
+npm --prefix front run dev
+```
+
+Deployment builds the demo page first, then deploys the Worker:
+
+```bash
+npm run deploy
+```
+
 ### Tech Stack
 - **Environment:** Cloudflare Workers (Edge Serverless)
 - **Language:** TypeScript
 - **Engine:** `elizabot` (Node.js port of the original ELIZA algorithm)
 - **Protocol:** REST API (OpenAI API compatibility layer)
+- **Demo Page:** React + Vite frontend in `front/`
 
 ### Usage Example
 
